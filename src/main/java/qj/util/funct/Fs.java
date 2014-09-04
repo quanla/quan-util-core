@@ -551,19 +551,6 @@ public class Fs extends FsGenerated {
         }};
     }
 
-//    /**
-//     * Create new instance
-//     */
-//    public static <A> F0<A> f0(final Class<A> clazz) {
-//        return new F0() {public Object e() {
-//            return ReflectUtil.newInstance(clazz);
-//        }};
-//    }
-    public static <A> F1<Object, A> f1(final Class<A> clazz) {
-        return new F1<Object, A>() {public A e(Object param) {
-            return ReflectUtil.newInstance(clazz, param);
-        }};
-    }
     public static <A> F1<Object[], A> fMulti(final Class<A> clazz) {
         return new F1<Object[], A>() {public A e(Object[] params) {
             return ReflectUtil.newInstance(clazz, params);

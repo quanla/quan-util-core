@@ -387,4 +387,10 @@ public class StringUtil extends StringUtil4 {
 	public static F1<String,String> internF = new F1<String, String>() {public String e(String obj) {
 		return obj.intern();
 	}};
+
+	public static <O> F1<O,String> valueOfF() {
+		return new F1<O,String>() {public String e(O obj) {
+			return String.valueOf(obj);
+		}};
+	};
 }

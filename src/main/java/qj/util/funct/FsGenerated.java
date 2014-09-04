@@ -1055,6 +1055,8 @@ public class FsGenerated {
 			return ret;
 		}};
 	}
+	
+	
 	/**
 	 * Return fixed value
 	 * @param ret the fixed value to return

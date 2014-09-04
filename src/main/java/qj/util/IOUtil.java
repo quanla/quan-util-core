@@ -755,6 +755,14 @@ public class IOUtil extends IOUtil4 {
 			closeAllSockets(sockets);
 		}};
 	}
+	
+	/**
+	 * Read and call back each time it meet the separationLine
+	 * p1 is called with multiple lines concated
+	 * @param separationLine
+	 * @param reader
+	 * @param p1
+	 */
 	public static void eachMarkedLines(String separationLine,
 			InputStreamReader reader, P1<String> p1) {
 		BufferedReader br = new BufferedReader(reader);

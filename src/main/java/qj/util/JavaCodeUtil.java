@@ -246,7 +246,6 @@ public class JavaCodeUtil {
 			.compile("\\n([\\s&&[^\\n]]*)(\\S)");
 
 	/**
-	 * TODO fuck, it get template space of empty line.
 	 * 
 	 * @param code
 	 * @param pos

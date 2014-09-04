@@ -412,6 +412,11 @@ public class HttpUtil4 {
         System.out.println(getQueryParameter("asyncId", "asyncId=0"));
     }
 
+    /**
+     * @param name
+     * @param queryString
+     * @return
+     */
     public static String getQueryParameter(String name, String queryString) {
     	if (queryString==null) {
     		return null;
@@ -420,7 +425,7 @@ public class HttpUtil4 {
         Pattern ptn = Pattern.compile("(?:^|[\\?&])" + name + "=([^&]*)");
         Matcher m = ptn.matcher(queryString);
         if (m.find()) {
-            return StringUtil4.decodePercent(m.group(1));
+            return StringUtil4.decodePercent(m.group(1)).replaceAll("\\+", " ");
         } else {
             return null;
         }

@@ -15,46 +15,46 @@ public class FsCodeBuilder {
         System.out.println("\n\t// Down F");
         for (int i = 0; i < maxParam; i++) {
             for (int j = i + 1; j < 4; j++) {
-                System.out.println("\t" + tab(convert(i, j, Fs.f1(F.class))));
+                System.out.println("\t" + tab(convert(i, j, ReflectUtil.newInstanceF1(F.class))));
             }
         }
         System.out.println("\n\t// Up F");
         for (int i = 0; i < maxParam; i++) {
             for (int j = 0; j < i; j++) {
-                System.out.println("\t" + tab(convert(i, j, Fs.f1(F.class))));
+                System.out.println("\t" + tab(convert(i, j, ReflectUtil.newInstanceF1(F.class))));
             }
         }
 
         System.out.println("\n\t// Down P");
         for (int i = 0; i < maxParam; i++) {
             for (int j = i + 1; j < maxParam; j++) {
-                System.out.println("\t" + tab(convert(i, j, Fs.f1(P.class))));
+                System.out.println("\t" + tab(convert(i, j, ReflectUtil.newInstanceF1(P.class))));
             }
         }
         System.out.println("\n\t// Up P");
         for (int i = 0; i < maxParam; i++) {
             for (int j = 0; j < i; j++) {
-                System.out.println("\t" + tab(convert(i, j, Fs.f1(P.class))));
+                System.out.println("\t" + tab(convert(i, j, ReflectUtil.newInstanceF1(P.class))));
             }
         }
 
         System.out.println("\n\t// Nothing P");
         for (int i = 0; i < maxParam; i++) {
-            System.out.println("\t" + tab(doNothing(i, Fs.f1(P.class))));
+            System.out.println("\t" + tab(doNothing(i, ReflectUtil.newInstanceF1(P.class))));
         }
 
         System.out.println("\n\t// Reflect");
         for (int i = 0; i < maxParam; i++) {
-            System.out.println("\t" + tab(reflect(i, Fs.f1(P.class))));
+            System.out.println("\t" + tab(reflect(i, ReflectUtil.newInstanceF1(P.class))));
         }
         for (int i = 0; i < maxParam; i++) {
-            System.out.println("\t" + tab(reflect(i, Fs.f1(F.class))));
+            System.out.println("\t" + tab(reflect(i, ReflectUtil.newInstanceF1(F.class))));
         }
         for (int i = 0; i < maxParam; i++) {
-            System.out.println("\t" + tab(reflectObj(i, Fs.f1(P.class))));
+            System.out.println("\t" + tab(reflectObj(i, ReflectUtil.newInstanceF1(P.class))));
         }
         for (int i = 0; i < maxParam; i++) {
-            System.out.println("\t" + tab(reflectObj(i, Fs.f1(F.class))));
+            System.out.println("\t" + tab(reflectObj(i, ReflectUtil.newInstanceF1(F.class))));
         }
 
         System.out.println("\n\t// F with fixed return");

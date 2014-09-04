@@ -24,6 +24,9 @@ public class LangUtil extends LangUtil4 {
 	public static F1<byte[],String> bytesToStringF = new F1<byte[],String>() {public String e(byte[] obj) {
 		return new String(obj);
 	}};
+	public static F1<String,Long> parseLongF = new F1<String,Long>() {public Long e(String obj) {
+		return Long.valueOf(obj);
+	}};
 
 	public static F1<Character, Boolean> isWord = new F1<Character, Boolean>() {
         public Boolean e(Character c) {

@@ -397,8 +397,11 @@ public class ReflectUtil {
 		byteArrayToObject(objectToByteArray(new ArrayList()));
 	}
 	public static Class<?> forName(String clazz) {
+		return forName(clazz, ReflectUtil.class.getClassLoader());
+	}
+	public static Class<?> forName(String clazz, ClassLoader classLoader) {
 		try {
-			return Class.forName(clazz);
+			return Class.forName(clazz, true, classLoader);
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -594,5 +597,24 @@ public class ReflectUtil {
 		for (Method m : clazz.getMethods()) {
 			p1.e(m);
 		}
+	}
+
+	/**
+	 * Create new instance
+	 */
+	public static <A> F0<A> newInstanceF(final Class<A> clazz) {
+		return new F0() {
+			public Object e() {
+				return ReflectUtil.newInstance(clazz);
+			}
+		};
+	}
+
+	public static <A> F1<Object, A> newInstanceF1(final Class<A> clazz) {
+		return new F1<Object, A>() {
+			public A e(Object param) {
+				return ReflectUtil.newInstance(clazz, param);
+			}
+		};
 	}
 }

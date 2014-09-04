@@ -1262,8 +1262,9 @@ public class FileUtil {
         }
     }
 
-	public static int size(File f) throws IOException {
-		return IOUtil4.count(new FileInputStream(f));
+	public static long size(File f) throws IOException {
+		return f.length();
+//		return IOUtil4.count(new FileInputStream(f));
 	}
 	public static long sizeDir(File dir) {
 		final long[] total = {0};
