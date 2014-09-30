@@ -121,8 +121,12 @@ public class SystemUtil {
 		return absolutePaths(System.getProperty("java.class.path"));
 	}
 	public static List<String> classPaths1() {
-		return Arrays.asList(System.getProperty("java.class.path").split(classpathSeparator()));
+		return Cols.filter(Arrays.asList(System.getProperty("java.class.path").split(classpathSeparator())), (p) -> {
+			return !p.contains("jre") && !p.contains("JetBrains");
+		});
 	}
+
+
 	public static void eachClassPath(P1<String> p1) {
 
 		for (String path : System.getProperty("java.class.path").split(classpathSeparator())) {
@@ -167,9 +171,11 @@ public class SystemUtil {
 	public static void main(String[] args) {
 //		System.out.println(System.getenv("JAVA_HOME"));
 //		System.out.println(Cols.toString(System.getenv()));
-		System.out.println(Cols.toString(System.getProperties()));
-		System.out.println("---------------------------------");
-		System.out.println(Cols.toString(System.getenv()));
+//		System.out.println(Cols.toString(System.getProperties()));
+//		System.out.println("---------------------------------");
+//		System.out.println(Cols.toString(System.getenv()));
+
+//		System.out.println(Cols.toString(classPaths1()));
 	}
 	
 	public static Process runJava(Class<?> mainClass, String dir) {
@@ -201,7 +207,7 @@ public class SystemUtil {
 		}});
 	}
 	public static void onReturn1(final P0 p0) {
-		onReturn1(Fs.p1(p0));
+		onReturn1(Fs.<String>p1(p0));
 	}
 	public static void onReturn1(final P1<String> p1) {
 		ThreadUtil.runStrong(new P0() {public void e() {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -316,5 +317,17 @@ public class LangUtil extends LangUtil4 {
 			ret += Math.pow(10, i) * recycled.get(recycled.size() - i - 1);
 		}
 		return ret;
+	}
+
+	public static BigDecimal add(BigDecimal b1, BigDecimal b2) {
+		if (b1 == null) {
+			return b2;
+		} else {
+			if (b2 == null) {
+				return b1;
+			} else {
+				return b1.add(b2);
+			}
+		}
 	}
 }

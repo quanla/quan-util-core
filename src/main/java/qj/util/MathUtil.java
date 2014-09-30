@@ -686,7 +686,7 @@ public class MathUtil extends MathUtil4 {
 	/**
 	 * Distance of 1-2 and 4-5 = -2
 	 * @param targetRange
-	 * @param sourceRange
+	 * @param pos
 	 * @return
 	 */
 	public static int distance(Range targetRange, int pos) {
@@ -1220,5 +1220,26 @@ public class MathUtil extends MathUtil4 {
 			}
 		}});
 		return new Douce<>(min.get(), val.get());
+	}
+
+	public static BigDecimal add(BigDecimal... bigs) {
+		BigDecimal total = BigDecimal.ZERO;
+		for (BigDecimal big : bigs) {
+			if (big != null) {
+				total = total.add(big);
+			}
+		}
+		return total;
+	}
+
+	public static BigDecimal subtract(BigDecimal b1, BigDecimal b2) {
+		if (b1 == null) {
+			b1 = BigDecimal.ZERO;
+		}
+		if (b2 == null) {
+			b2 = BigDecimal.ZERO;
+		}
+
+		return b1.subtract(b2);
 	}
 }

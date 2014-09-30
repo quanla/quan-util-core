@@ -77,7 +77,6 @@ public class Cols {
 
 	/**
 	 * 
-	 * @param <A>
 	 * @param distanceF
 	 * @param col
 	 * @param acceptF return true when ok to stop
@@ -2232,7 +2231,8 @@ public class Cols {
 			for (int i = 0; i < list.size(); i++) {
 				final A a = list.get(i);
 				final LinkedList<A> feed = new LinkedList<A>();
-				eachArrangement(splice(i, 1, list), new P1<List<A>>() {public void e(List<A> subList) {
+                List<A> splice = splice(i, 1, list);
+                eachArrangement(splice, new P1<List<A>>() {public void e(List<A> subList) {
 					feed.add(a);
 					feed.addAll(subList);
 					p1.e(feed);
