@@ -8,6 +8,7 @@ import java.util.zip.*;
 import qj.util.funct.*;
 import qj.util.funct.Fs.F1Cache;
 
+@SuppressWarnings("UnusedDeclaration")
 public class FileUtil {
 
 	public static F1<File, Boolean> csv = isExtention("csv");
@@ -16,16 +17,14 @@ public class FileUtil {
     public static F1<File, Boolean> thumbsDb = isName("Thumbs.db");
     
 	@SuppressWarnings("unchecked")
-	public static F1<File, Boolean> filter = Fs.and(Fs.not(svn), Fs.not(dsStore), Fs.not(thumbsDb));
+	public static F1<File, Boolean> filter = Fs.<File>and(Fs.not(svn), Fs.not(dsStore), Fs.not(thumbsDb));
 	
 	public static String md5(File file) {
 		InputStream in = fileInputStream(file);
 	    return IOUtil.md5(in);
 	}
 	
-	public static F1<File,String> getName = new F1<File,String>() {public String e(File obj) {
-		return obj.getName();
-	}};
+	public static F1<File,String> getName = File::getName;
 
 	public static FileOutputStream fileOutputStream(String path, boolean append) {
 		try {
@@ -49,8 +48,6 @@ public class FileUtil {
 			out.write(0xBB);
 			out.write(0xBF);
 			return out;
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -88,24 +85,16 @@ public class FileUtil {
 		}
 	}
 
-    private static final F1<String,File> STRING_TO_FILE = new F1<String,File>() {public File e(String path) {
-        return new File(path);
-    }};
-	public static final F1<File,Boolean> isFile = new F1<File, Boolean>() {public Boolean e(File obj) {
-		return obj.isFile();
-	}};
+    private static final F1<String,File> STRING_TO_FILE = File::new;
+	public static final F1<File,Boolean> isFile = File::isFile;
 
     public static F1<File, Boolean> isExtention(final String ext) {
         final String endsWith = "." + ext.toUpperCase();
-        return new F1<File, Boolean>() {public Boolean e(File file) {
-            return file != null && file.exists() && file.isFile() && file.getName().toUpperCase().endsWith(endsWith);
-        }};
+        return file -> file != null && file.exists() && file.isFile() && file.getName().toUpperCase().endsWith(endsWith);
     }
     public static F1<File, Boolean> isName(final String name) {
         final String equals = name.toUpperCase();
-        return new F1<File, Boolean>() {public Boolean e(File file) {
-            return file != null && file.exists() && file.getName().toUpperCase().equals(equals);
-        }};
+        return file -> file != null && file.exists() && file.getName().toUpperCase().equals(equals);
     }
     
     public static Collection<File> findFiles(File dir, F1<File, Boolean> filter) {
@@ -114,8 +103,6 @@ public class FileUtil {
 
     /**
      * Recursive
-     * @param path
-     * @param f
      */
     public static void eachFile(File path, P1<File> f) {
     	eachFile(path, Fs.<File, String>p2(f));
@@ -130,7 +117,7 @@ public class FileUtil {
     }
     public static void eachFile(File path, F2<File, String,Boolean> f, F1<File, Boolean> exclude) {
 
-        ArrayList<String> relPath = new ArrayList<String>();
+        ArrayList<String> relPath = new ArrayList<>();
 
         if (path.isFile()) {
             f.e(path, Cols.join(relPath, File.separator));
@@ -152,7 +139,7 @@ public class FileUtil {
         if (paths == null) {
             return;
         }
-        ArrayList<String> relPath = new ArrayList<String>();
+        ArrayList<String> relPath = new ArrayList<>();
         for (File path: paths) {
             if (exclude != null && exclude.e(path)) {
 //            	System.out.println("Excluded " + path);
@@ -204,7 +191,7 @@ public class FileUtil {
         return Cols.yield(filePaths, STRING_TO_FILE);
     }
 	public static P0 out(final P1<OutputStream> outf, final File file) {
-		return new P0() {public void e() {
+		return () -> {
 			try {
 				FileOutputStream fout = new FileOutputStream(file);
 				outf.e(fout);
@@ -212,28 +199,20 @@ public class FileUtil {
 			} catch (FileNotFoundException e) {
 				throw new RuntimeException(e);
 			}
-		}};
+		};
 	}
 
     public static long crc(File file, final long[] size) {
         size[0] = 0;
         final CRC32 crc32 = new CRC32();
-        IOUtil.eachBuffer(fileInputStream(file), new P2<byte[], Integer>() {public void e(byte[] buffer, Integer read) {
+        IOUtil.eachBuffer(fileInputStream(file), (buffer, read) -> {
             size[0] += read;
             crc32.update(buffer, 0, read);
-        }});
+        });
         return crc32.getValue();
     }
 	public static F1<File, Boolean> modifyBefore(final Date date) {
-		return new F1<File, Boolean>() {
-			
-			public Boolean e(File file) {
-//				System.out.println("Checking file: " + file);
-				boolean ret = file.lastModified() < date.getTime();
-//				System.out.println("ret=" + ret);
-				return ret;
-			}
-		};
+		return file -> file.lastModified() < date.getTime();
 		
 	}
 
@@ -242,7 +221,6 @@ public class FileUtil {
     }
     /**
      * 
-     * @param path
      * @param f return true to continue
      */
     public static void eachLine(String path, F1<String, Boolean> f) {
@@ -254,8 +232,6 @@ public class FileUtil {
 
     /**
      * 
-     * @param file
-     * @param f
      */
     public static void eachLine(File file, F1<String, Boolean> f) {
 		ZipFile zipFile = null;
@@ -288,8 +264,6 @@ public class FileUtil {
     
     /**
      * 
-     * @param file
-     * @param f
      * @param limit if -1: unlimited
      */
     public static void eachLine(File file, P1<String> f, int limit) {
@@ -369,8 +343,6 @@ public class FileUtil {
         try {
             FileOutputStream out = new FileOutputStream(file);
             out.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -387,14 +359,14 @@ public class FileUtil {
     public static int indexOf(final String str, final String path) {
         final int[] index = {0};
         try {
-            FileUtil.eachLine(path, new P1<String>() {public void e(String line) {
+            FileUtil.eachLine(path, (String line) -> {
                 int pos = line.indexOf(str);
                 if (pos > -1) {
                     throw new Error("" + index[0] + pos); // TODO Lazy :D
                 } else {
                     index[0] += path.length();
                 }
-            }});
+            });
             return -1;
         } catch (Error e) {
             return Integer.parseInt(e.getMessage());
@@ -434,8 +406,6 @@ public class FileUtil {
 			while ((line = readLineBackward(index, f)) != null) {
 				p1.e(line);
 			}
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -488,7 +458,7 @@ public class FileUtil {
 	}
 	
 	public static F1Cache<String, OutputStream> fileOutCache(final String dir, final String ext, P1<OutputStream> decor) {
-		return new Fs.F1Cache<String, OutputStream>(new F1<String, OutputStream>() {public OutputStream e(String entryCode){
+		return new Fs.F1Cache<>(entryCode -> {
 			String file = dir + "/" + entryCode + "." + ext;
 	        FileUtil.mkParentDirs(file);
 	        try {
@@ -496,7 +466,7 @@ public class FileUtil {
 	        } catch (FileNotFoundException e) {
 	            throw new RuntimeException(e);
 	        }
-	    }}, decor);
+	    }, decor);
 	}
 	
 	public static void search(String filePtn, P1<File> p1) {
@@ -523,7 +493,7 @@ public class FileUtil {
 	}
 	
 	public static Collection<File> search(String filePtn) {
-		ArrayList<File> ret = new ArrayList<File>();
+		ArrayList<File> ret = new ArrayList<>();
 		search(filePtn, Fs.store(ret));
 		return ret;
 	}
@@ -532,12 +502,12 @@ public class FileUtil {
 	}
 	
 	public static P1<String> writeToFileF(final F0<String> pathF) {
-		return new P1<String> () {public void e(String content) {
+		return content -> {
 			writeToFile(content, pathF.e(), "UTF-8");
-		}};
+		};
 	}
 	public static void findLine(String dir, final List<F1<String, Boolean>> list1) {
-		final List<F1<String, Boolean>> list = new ArrayList<F1<String, Boolean>>(list1);
+		final List<F1<String, Boolean>> list = new ArrayList<>(list1);
 	
 		F1<String, Boolean> e = lineF(list);
 		
@@ -556,7 +526,7 @@ public class FileUtil {
 		eachLine(file, e);
 	}
 	public static F1<String, Boolean> lineF(final List<F1<String, Boolean>> list) {
-		return new F1<String, Boolean>() {public Boolean e(String line) {
+		return line -> {
 			if (list.isEmpty()) {
 				return false;
 			}
@@ -565,7 +535,7 @@ public class FileUtil {
 				boolean lineUsed = false;
 				for (Iterator<F1<String, Boolean>> iterator = list.iterator(); iterator.hasNext();) {
 					F1<String, Boolean> f = iterator.next();
-				
+
 					if (f.e(line)) {
 						iterator.remove();
 						lineUsed = true;
@@ -578,7 +548,7 @@ public class FileUtil {
 				System.out.println(e.getMessage());
 			}
 			return true;
-		}};
+		};
 	}
 	public static FileOutputStream out(File file, boolean append) {
 		try {
@@ -597,7 +567,7 @@ public class FileUtil {
 		return new File(file,childPath);
 	}
 	public static Collection<File> getChildFiles(File file) {
-		ArrayList<File> childs = new ArrayList<File>();
+		ArrayList<File> childs = new ArrayList<>();
 //		System.out.println(file);
 		for (File child : file.listFiles()) {
 			if (child.isDirectory()) {
@@ -612,18 +582,18 @@ public class FileUtil {
 	public static F1<File, String> getRelPath(final File from) {
 		final String fromAbsolutePath = from.getAbsolutePath();
 
-		return new F1<File, String>() {public String e(File file) {
+		return file -> {
 			String fileAbsolutePath = file.getAbsolutePath();
 			if (fileAbsolutePath.startsWith(fromAbsolutePath)) {
 				return fileAbsolutePath.substring(fromAbsolutePath.length() + 1);
 			} else {
 				return fileAbsolutePath;
 			}
-		}};
+		};
 	}
 	
 	public static List<File> getFiles(String inputs) {
-		ArrayList<File> ret = new ArrayList<File>();
+		ArrayList<File> ret = new ArrayList<>();
 		for (String input : inputs.trim().split("\\s*,\\s*")) {
 			File file = new File(input);
 			if (!file.exists()) {
@@ -648,7 +618,7 @@ public class FileUtil {
 			File tempFile = tempFile(file);
 			final PrintStream out = new PrintStream(tempFile);
 			final int[] index = {-1};
-			eachLine(file, new F1<String, Boolean>() {public Boolean e(String line) {
+			eachLine(file, (String line) -> {
 				index[0]++;
 				if (!lines.contains(index[0])) {
 					out.println(line);
@@ -659,7 +629,7 @@ public class FileUtil {
 					}
 				}
 				return true;
-			}});
+			});
 			IOUtil.close(out);
 			
 			file.delete();
@@ -678,7 +648,7 @@ public class FileUtil {
 				&& f1.getName().equals(f2.getName())) {
 			return commonParents(f1.getParentFile(), f2.getParentFile());
 		} else {
-			return new Douce<File, File>(f1, f2);
+			return new Douce<>(f1, f2);
 		}
 	}
 	
@@ -732,9 +702,9 @@ public class FileUtil {
 			targetDir.mkdirs();
 			copyFile(file, new File(targetDir,file.getName()));
 		} else {
-			eachFile(file, new P2<File,String>() {public void e(File f, String path) {
+			eachFile(file, (f, path) -> {
 				copy(f, new File(targetDir,path ));
-			}});
+			});
 		}
 	}
 
@@ -749,35 +719,35 @@ public class FileUtil {
 	public static P0 search(final String pattern, final String rootDir, final P1<File> foundFile) {
 		final boolean[] cont = {true};
 		
-		ThreadUtil.run(new P0() {public void e() {
+		ThreadUtil.run((P0) () -> {
 			eachFile(new File(rootDir), new F2<File, String,Boolean>() {public Boolean e(File file, String b) {
 				if (patternMatch(file, pattern)) {
 					foundFile.e(file);
 				}
-				
+
 				return cont[0];
 			}}, null);
-		}});
+		});
 
-		return new P0() {public void e() {
+		return () -> {
 			cont[0] = false;
-		}};
+		};
 	}
 
 	public static F2<String, P1<File>, P0> searchF(final String rootDir) {
-		final TreeMap<String, List<File>> index = new TreeMap<String, List<File>>();
-		eachFile(new File(rootDir), new F2<File, String,Boolean>() {public Boolean e(File file, String relPath) {
+		final TreeMap<String, List<File>> index = new TreeMap<>();
+		eachFile(new File(rootDir), (File file, String relPath) -> {
 			Cols.putMulti(file.getName(), file, index);
-			
+
 			addZipEntries(file,index);
-			
+
 			return true;
-		}}, null);
+		}, null);
 		
-		return new F2<String, P1<File>, P0>() {public P0 e(final String pattern, final P1<File> foundFile) {
+		return (pattern, foundFile) -> {
 
 			final boolean[] cont = {true};
-			
+
 			List<File> files = index.get(pattern);
 			if (files!=null) {
 				Cols.each(files, foundFile);
@@ -786,7 +756,7 @@ public class FileUtil {
 			return new P0() {public void e() {
 				cont[0] = false;
 			}};
-		}};
+		};
 		
 	}
 	
@@ -833,13 +803,13 @@ public class FileUtil {
 	public static File lastUpdatedFile(File dir, final F1<File,Boolean> filterF) {
 		final long[] maxLastModified = {0};
 		final File[] maxLastModifiedFile = {null};
-		eachFile(dir, new P1<File>() {public void e(File file) {
+		eachFile(dir, file -> {
 			long lastModified = file.lastModified();
 			if (lastModified > maxLastModified[0] && filterF.e(file)) {
 				maxLastModified[0] = lastModified;
 				maxLastModifiedFile[0] = file;
 			}
-		}});
+		});
 		
 		return maxLastModifiedFile[0];
 	}
@@ -853,10 +823,10 @@ public class FileUtil {
 			
 			final boolean[] interrupted = {false};
 			
-			ThreadUtil.run(new P0() {public void e() {
+			ThreadUtil.run((P0) () -> {
 				try {
 					while (!interrupted[0]) {
-						
+
 						long length = raf.length();
 						if (length > oldLength[0]) {
 							f.e(new String(IOUtil.readEnough((int)(length - oldLength[0]), raf)));
@@ -867,13 +837,11 @@ public class FileUtil {
 				} catch (IOException e1) {
 					throw new RuntimeException(e1);
 				}
-			}});
-			return new P0(){public void e() {
+			});
+			return () -> {
 				IOUtil.close(raf);
 				interrupted[0] = true;
-			}};
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			};
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -884,7 +852,7 @@ public class FileUtil {
 		final long[] lastModified = {file.lastModified()};
 		final boolean[] interrupted = {false};
 		
-		ThreadUtil.run(new P0() {public void e() {
+		ThreadUtil.run((P0) () -> {
 			while (!interrupted[0]) {
 				ThreadUtil.sleep(2000);
 				long lastModified2 = file.lastModified();
@@ -893,11 +861,11 @@ public class FileUtil {
 					p.e();
 				}
 			}
-		}});
+		});
 		
-		return new P0() {public void e() {
+		return () -> {
 			interrupted[0] = true;
-		}};
+		};
 	}
 
 	public static String readFilePortionToString(File file, long from) {
@@ -910,8 +878,6 @@ public class FileUtil {
 			raf = new RandomAccessFile(file, "r");
 			raf.seek(from);
 			return IOUtil.readEnough((int)(to-from), raf);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -934,15 +900,15 @@ public class FileUtil {
 
 	public static void copyDir(File fromDir, final File toDir, final F1<File, Boolean> filter) {
 		toDir.mkdirs();
-		eachFile(fromDir, new P2<File,String>() {public void e(File f, String path) {
-			copy(f, new File(toDir, path));
-		}}, filter==null ? null : Fs.not(filter));
+		eachFile(fromDir, (File f, String path) -> {
+			FileUtil.copy(f, new File(toDir, path));
+		}, filter==null ? null : Fs.not(filter));
 	}
 
 	public static P0 deleteF(final String path) {
-		return new P0() {public void e() {
+		return () -> {
 			delete(path);
-		}};
+		};
 	}
 
 	public static boolean exists(String path) {
@@ -965,14 +931,12 @@ public class FileUtil {
 	static {
 		try {
 			currentDir = new File(".").getCanonicalPath();
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 		}
 	}
 	
 	/**
 	 * 
-	 * @param targetFile
-	 * @param destFile
 	 */
 	public static void moveFile(String targetFile, String destFile) {
 		File fileTarget = getFile(targetFile);
@@ -989,7 +953,6 @@ public class FileUtil {
 	}
 
 	/**
-	 * @param file
 	 * @return file name
 	 */
 	public static String getFileExt(File file) {
@@ -1002,7 +965,6 @@ public class FileUtil {
 	}
 
 	/**
-	 * @param filePath
 	 * @return file name
 	 */
 	public static String getFileName(String filePath) {
@@ -1011,7 +973,6 @@ public class FileUtil {
 
 	/**
 	 * 
-	 * @param fileName
 	 * @return file name with no ext
 	 */
 	public static String rejectExtFileName(String fileName) {
@@ -1021,9 +982,7 @@ public class FileUtil {
 	/**
 	 * Read a file path to a String
 	 * 
-	 * @param path
 	 * @return
-	 * @throws IOException
 	 */
 	public static String readFileToString(String path) {
 		File fileToRead = getFile(path);
@@ -1091,7 +1050,7 @@ public class FileUtil {
 				br = new BufferedReader(new InputStreamReader(new FileInputStream(fileToRead), charset));
 			else
 				br = new BufferedReader(new InputStreamReader(new FileInputStream(fileToRead)));
-			StringBuffer sb = new StringBuffer((int) fileToRead.length());
+			StringBuilder sb = new StringBuilder((int) fileToRead.length());
 			String tempRead;
 			boolean first = true;
 			while ((tempRead = br.readLine()) != null) {
@@ -1115,8 +1074,7 @@ public class FileUtil {
 			if (br!=null)
 				try {
 					br.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+				} catch (IOException ignored) {
 				}
 		}
 	}
@@ -1216,11 +1174,11 @@ public class FileUtil {
 				&& folder.isDirectory()) {
 			File[] files = folder.listFiles();
 			// Delete content
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory()) {
-					rd(files[i]);
+			for (File file : files != null ? files : new File[0]) {
+				if (file.isDirectory()) {
+					rd(file);
 				} else {
-					files[i].delete();
+					file.delete();
 				}
 			}
 			
@@ -1237,8 +1195,6 @@ public class FileUtil {
 			FileOutputStream out = new FileOutputStream(outputFile);
 			IOUtil4.connect(new FileInputStream(file), out);
 			IOUtil.close(out);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -1268,7 +1224,7 @@ public class FileUtil {
 	}
 	public static long sizeDir(File dir) {
 		final long[] total = {0};
-		eachFile(dir, new P1<File>() {public void e(File obj) {
+		eachFile(dir, obj -> {
 			if (obj.isDirectory()) {
 				return;
 			}
@@ -1277,7 +1233,7 @@ public class FileUtil {
 			} catch (IOException e1) {
 				throw new RuntimeException(e1.getMessage(), e1);
 			}
-		}});
+		});
 		return total[0];
 	}
 
@@ -1287,9 +1243,7 @@ public class FileUtil {
 		try {
 			fout = new FileOutputStream(file);
 			IOUtil4.connect(in, fout);
-		} catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+		} catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             IOUtil4.close(fout);
@@ -1350,9 +1304,8 @@ public class FileUtil {
 		File[] subFiles = dir.listFiles();
 		
 		if (subFiles != null) {
-			for (int i = 0; i < subFiles.length; i++) {
-				File f = subFiles[i];
-				if (filter==null || filter.e(f)) {
+			for (File f : subFiles) {
+				if (filter == null || filter.e(f)) {
 					delete(f);
 				}
 			}
@@ -1365,32 +1318,28 @@ public class FileUtil {
 
 	public static String[] readFilesToStrings(File[] listFiles) {
 		ArrayList list = new ArrayList();
-		for (int i = 0; i < listFiles.length; i++) {
-			File file = listFiles[i];
-			
+		for (File file : listFiles) {
 			list.add(readFileToString(file));
 		}
-		return (String[]) list.toArray(new String[] {});
+		return (String[]) list.toArray(new String[list.size()]);
 	}
 
 
     public static void readFileOut(File path, OutputStream out) {
         try {
             IOUtil4.connect(new FileInputStream(path), out);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
 	public static Collection<InputStream> childFileInputStreams(File file, final String ext) {
-		return Cols.yield(file.listFiles(), new F1<File,InputStream>() {public InputStream e(File obj) {
+		return Cols.yield(file.listFiles(), obj -> {
 			if (ext != null && !obj.getName().endsWith("." + ext)) {
 				return null;
 			}
 			return fileInputStream(obj);
-		}});
+		});
 	}
 	
 	public static void main(String[] args) {
@@ -1398,19 +1347,19 @@ public class FileUtil {
 	}
 	
 	public static F1<String,String> fileStringGetter(final File dir) {
-		return new F1<String, String>() {public String e(String key) {
+		return key -> {
 			File file = new File(dir, key);
 			if (!file.exists()) {
 				return null;
 			}
 			return FileUtil.readFileToString(file);
-		}};
+		};
 	}
 	public static P2<String,String> fileStringSetter(final File dir) {
-		return new P2<String, String>() {public void e(String key, String value) {
+		return (key, value) -> {
 			File file = new File(dir, key);
 			FileUtil.writeToFile(value, file);
-		}};
+		};
 	}
 	
 	public static File getCanonicalFile(File file) {
