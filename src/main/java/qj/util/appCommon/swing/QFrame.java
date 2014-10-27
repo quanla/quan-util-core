@@ -61,9 +61,6 @@ public class QFrame extends JFrame {
         super(title);
     }
 
-    public P0 repack = new P0() {public void e() {
-        repack(QFrame.this);
-    }};
     public static void repack(Window win) {
         win.setMinimumSize(null);
         win.pack();

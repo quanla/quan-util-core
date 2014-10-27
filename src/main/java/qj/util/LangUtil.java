@@ -1,39 +1,25 @@
 package qj.util;
 
+import qj.tool.file.FileSearch;
+import qj.util.funct.F1;
+import qj.util.lang.CompositeClassLoader;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import qj.tool.file.FileSearch;
-import qj.util.funct.F1;
-import qj.util.lang.DirClassPathClassLoader;
-import qj.util.lang.JarClassPathClassLoader;
-
 public class LangUtil extends LangUtil4 {
-	public static F1<byte[],String> bytesToStringF = new F1<byte[],String>() {public String e(byte[] obj) {
-		return new String(obj);
-	}};
-	public static F1<String,Long> parseLongF = new F1<String,Long>() {public Long e(String obj) {
-		return Long.valueOf(obj);
-	}};
+	public static F1<byte[],String> bytesToStringF = obj -> new String(obj);
+	public static F1<String,Long> parseLongF = obj -> Long.valueOf(obj);
 
-	public static F1<Character, Boolean> isWord = new F1<Character, Boolean>() {
-        public Boolean e(Character c) {
-            return Character.isLetterOrDigit(c);
-        }
-    };
+	public static F1<Character, Boolean> isWord = c -> Character.isLetterOrDigit(c);
     
     public static Character[] toObjArr(char[] arr) {
         Character[] ret = new Character[arr.length];
@@ -54,7 +40,7 @@ public class LangUtil extends LangUtil4 {
 
 	public static ArrayList<String> findClasses(String pkg) {
 		String pkgRootPath = pkg.replaceAll("\\.", "/");
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		String[] classpaths = System.getProperty("java.class.path").split(";");
 		for (int i = 0; i < classpaths.length; i++) {
 			File file = new File(classpaths[i]);
@@ -75,13 +61,12 @@ public class LangUtil extends LangUtil4 {
 				return null;
 			}
 			
-			List<String> yield = Cols.yield(Arrays.asList(FileSearch.searchFile(pkgDir.getPath(), ".class")), new F1<File, String>(){public String e(File obj) {
+			List<String> yield = Cols.yield(Arrays.asList(FileSearch.searchFile(pkgDir.getPath(), ".class")), obj -> {
 				if (PTN.matcher(obj.getPath()).find()) {
 					return null;
 				}
 				return obj.getPath().substring(filePath.length() + 1).replaceAll("\\.class$", "").replaceAll("[\\\\/]", ".");
-			}
-            });
+			});
 			while (yield.contains(null)) {
 				yield.remove(null);
 			}
@@ -90,7 +75,7 @@ public class LangUtil extends LangUtil4 {
 			try {
 				ZipFile zipFile = new ZipFile(file);
 				Enumeration<?> en = zipFile.entries();
-				ArrayList<String> list = new ArrayList<String>();
+				ArrayList<String> list = new ArrayList<>();
 				while (en.hasMoreElements()) {
 					ZipEntry entry = (ZipEntry) en.nextElement();
 					if (entry.isDirectory()) {
@@ -180,10 +165,8 @@ public class LangUtil extends LangUtil4 {
 		File file = new File(path);
 		if (!file.exists()) {
 			return null;
-		} else if (file.isDirectory()) {
-			return new DirClassPathClassLoader(path);
 		} else {
-			return new JarClassPathClassLoader(path);
+			return new CompositeClassLoader(path);
 		}
 	}
 
@@ -205,17 +188,15 @@ public class LangUtil extends LangUtil4 {
 		return attempts+1;
 	}
 	
-	public static F1<String,List<Double>> parseDoubleListF = new F1<String,List<Double>>(){public List<Double> e(String obj) {
-		LinkedList<Double> ret = new LinkedList<Double>();
+	public static F1<String,List<Double>> parseDoubleListF = obj -> {
+		LinkedList<Double> ret = new LinkedList<>();
 		for (String str : obj.split("\\s*,\\s*")) {
 			ret.add(Double.valueOf(str));
 		}
 		return ret;
-	}};
+	};
 	
-	public static F1<String,TimeZone> timezoneF = new F1<String,TimeZone>() {public TimeZone e(String obj) {
-		return TimeZone.getTimeZone(obj);
-	}};
+	public static F1<String,TimeZone> timezoneF = obj -> TimeZone.getTimeZone(obj);
 
 	public static byte[] toBytes(char[] chars) {
 		byte[] ret = new byte[chars.length];

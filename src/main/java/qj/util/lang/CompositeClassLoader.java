@@ -1,24 +1,22 @@
 package qj.util.lang;
 
+import qj.util.FileUtil;
+import qj.util.IOUtil;
+import qj.util.funct.F1;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.LinkedList;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import qj.util.FileUtil;
-import qj.util.IOUtil;
-import qj.util.funct.F1;
+public class CompositeClassLoader extends AggressiveClassLoader {
+	LinkedList<F1<String, byte[]>> loaders = new LinkedList<>();
 
-public class CompositeClassPathLoader extends SimpleClassPathClassLoader {
-	LinkedList<F1<String, byte[]>> loaders = new LinkedList<F1<String, byte[]>>();
-
-	public CompositeClassPathLoader(String... paths) {
+	public CompositeClassLoader(String... paths) {
 		for (String path : paths) {
 			File file = new File(path);
 			
@@ -29,7 +27,9 @@ public class CompositeClassPathLoader extends SimpleClassPathClassLoader {
 			loaders.add(loader);
 		}
 	}
-	public CompositeClassPathLoader(Collection<File> paths) {
+
+	@SuppressWarnings("UnusedDeclaration")
+	public CompositeClassLoader(Collection<File> paths) {
 		for (File file : paths) {
 			F1<String, byte[]> loader = loader(file);
 			if (loader == null) {
@@ -62,23 +62,17 @@ public class CompositeClassPathLoader extends SimpleClassPathClassLoader {
 	}
 
 	public static F1<String, byte[]> dirLoader(final File dir) {
-		return new F1<String, byte[]>() {public byte[] e(String filePath) {
+		return filePath -> {
 			File file = findFile(filePath, dir);
 			if (file == null) {
 				return null;
 			}
-			
+
 			return FileUtil.readFileToBytes(file);
-		}};
+		};
 	}
 
 	private static F1<String, byte[]> jarLoader(final JarFile jarFile) {
-//		Enumeration<JarEntry> entries = jarFile.entries();
-//		while (entries.hasMoreElements()) {
-//			JarEntry jarEntry = (JarEntry) entries.nextElement();
-//			System.out.println(jarEntry.getName());
-//		}
-		
 		return new F1<String, byte[]>() {
 			public byte[] e(String filePath) {
 				ZipEntry entry = jarFile.getJarEntry(filePath);
@@ -116,7 +110,7 @@ public class CompositeClassPathLoader extends SimpleClassPathClassLoader {
 	protected byte[] loadNewClass(String name) {
 //		System.out.println("Loading class " + name);
 		for (F1<String, byte[]> loader : loaders) {
-			byte[] data = loader.e(SimpleClassPathClassLoader.toFilePath(name));
+			byte[] data = loader.e(AggressiveClassLoader.toFilePath(name));
 			if (data!= null) {
 				return data;
 			}

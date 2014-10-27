@@ -64,10 +64,17 @@ public class DateUtil4 {
 		truncateMonth(ca);
 		return ca.getTime();
 	}
+
+	public static Date monthStart(Date d) {
+		return truncateMonth(d);
+	}
+	public static Date monthStart(Date d, TimeZone timeZone) {
+		return truncateMonth(d, timeZone);
+	}
 	/**
 	 * Truncate to begin of day: 0 hour 0 minute 0 second 0 millisecond
 	 * @param d The date to be truncated
-	 * @return the result truncated date
+	 * @return the result truncated dateTimeZone timeZone
 	 */
 	public static Date truncateMonth(Date d, TimeZone timeZone) {
 		Calendar ca = Calendar.getInstance(timeZone);
@@ -208,6 +215,11 @@ public class DateUtil4 {
 //
 	public static Calendar getCalendar(Date date) {
 		Calendar ca = Calendar.getInstance();
+		ca.setTime(date);
+		return ca;
+	}
+	public static Calendar getCalendar(Date date, TimeZone timeZone) {
+		Calendar ca = Calendar.getInstance(timeZone);
 		ca.setTime(date);
 		return ca;
 	}

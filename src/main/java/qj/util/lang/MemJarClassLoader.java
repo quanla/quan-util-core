@@ -8,10 +8,14 @@ import java.util.Map;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 
-public class MemJarClassPathClassLoader extends SimpleClassPathClassLoader {
-	Map<String,byte[]> store = new HashMap<String,byte[]>();
+/**
+ * Load class from a jar file stream
+ */
+@SuppressWarnings("UnusedDeclaration")
+public class MemJarClassLoader extends AggressiveClassLoader {
+	Map<String,byte[]> store = new HashMap<>();
 	
-	public MemJarClassPathClassLoader(InputStream stream) {
+	public MemJarClassLoader(InputStream stream) {
 		JarInputStream jarInputStream;
 		try {
 			jarInputStream = new JarInputStream(stream);
@@ -39,8 +43,7 @@ public class MemJarClassPathClassLoader extends SimpleClassPathClassLoader {
 	}
 	
 	public byte[] loadNewClass(String name) {
-		
 		String filePath = toFilePath(name);
-		return store.remove(filePath);
+		return store.remove(filePath); // Remove it because it will be cached with default CL mechanism
 	}
 }

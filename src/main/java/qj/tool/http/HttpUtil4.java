@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import qj.tool.string.StringTracker;
 import qj.util.IOUtil4;
 import qj.util.ImageUtil;
+import qj.util.RegexUtil;
 import qj.util.StringUtil4;
 
 /**
@@ -319,6 +320,9 @@ public class HttpUtil4 {
 			return header;
 		String url = msg.getRequestURL().replaceAll("^http://", "");
 		return url.substring(0, url.indexOf("/"));
+	}
+	public static String getHost(String uri) {
+		return RegexUtil.getString("^.+?://(.+?)[:/]", 1, uri);
 	}
 
 //	/**

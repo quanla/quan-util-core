@@ -1,20 +1,17 @@
 package qj.util.appCommon.swing;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.*;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.*;
-
-import qj.util.ArrayUtil;
 import qj.util.Cols;
 import qj.util.LangUtil;
 import qj.util.PrefUtil;
 import qj.util.SwingUtil;
 import qj.util.funct.Fs;
 import qj.util.funct.P0;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Border layout
@@ -189,7 +186,7 @@ public class AppFrame extends StatusFrame implements ActionListener, WindowListe
 	public static final int MENU_VIEW = 2;
 	public static final int MENU_TOOL = 3;
 	public static final int MENU_HELP = 4;
-	private final HashMap<String, JMenu> menus = new HashMap<String, JMenu>();
+	private final HashMap<String, JMenu> menus = new HashMap<>();
 
 	public JMenu getMenu(String name) {
 		JMenu menu = menus.get(name);

@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import qj.util.funct.F0;
 
 public class DebugUtil {
-	public static String path = "debug.dat";
+	public static String path = SystemUtil.isWindows() ? "e:\\temp\\debug.dat" : "/tmp/debug.dat";
 	public static void save(Object o) {
 		save(o, path);
 	}

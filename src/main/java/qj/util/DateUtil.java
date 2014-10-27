@@ -84,6 +84,11 @@ public class DateUtil extends DateUtil4 {
 		calendar.add(Calendar.MONTH, months);
 		return calendar.getTime();
 	}
+	public static Date addMonths(Date date, int months, TimeZone timeZone) {
+		Calendar calendar = getCalendar(date, timeZone);
+		calendar.add(Calendar.MONTH, months);
+		return calendar.getTime();
+	}
 	public static Date addYears(Date date, int years) {
         Calendar calendar = getCalendar(date);
         calendar.add(Calendar.YEAR, years);
@@ -149,8 +154,15 @@ public class DateUtil extends DateUtil4 {
 	public static Date dayEnd(Date dateStart) {
 		return new Date(DateUtil.addDays(dateStart, 1).getTime() - 1);
 	}
+
+	/**
+	 * Only work with month start
+	 */
 	public static Date monthEnd(Date monthStart) {
 		return new Date(DateUtil.addMonths(monthStart, 1).getTime() - 1);
+	}
+	public static Date monthEnd(Date monthStart, TimeZone timeZone) {
+		return new Date(DateUtil.addMonths(monthStart, 1, timeZone).getTime() - 1);
 	}
 	public static Date weekStart(Date date, TimeZone timeZone) {
 		Calendar ca = timeZone== null ?  Calendar.getInstance() : Calendar.getInstance(timeZone);
