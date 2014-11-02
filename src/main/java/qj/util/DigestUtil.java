@@ -65,7 +65,7 @@ public class DigestUtil {
 		
 //		System.out.println(digest(new File("/Users/quanle/Documents/Workon/qj-svn_tkqn/commercial-apps/gunny-tool/todo.txt"), "SHA-1"));
 //		System.out.println(digest("123!@#qwe"));
-		System.out.println(digest("q"));
+		System.out.println(digest("q")); // f6147426e39665bc0c5d1d19d43de19d
 	}
 
 }

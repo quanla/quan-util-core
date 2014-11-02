@@ -212,10 +212,6 @@ public class ReflectUtil {
 	
 	/**
 	 * Invoke the method with given params
-	 * @param method
-	 * @param o
-	 * @param params
-	 * @return
 	 */
 	public static Object invoke(String methodName, Object o, Object... params) {
 		return invoke(getMethod(methodName, o.getClass()), o, params);
@@ -343,10 +339,26 @@ public class ReflectUtil {
         }
     }
 
+    public static <A> A getStaticFieldValue(String field, Class clazz) {
+        try {
+            return (A) getFieldValue(clazz.getDeclaredField(field), null);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 	public static <A> A getFieldValue(String field, Object obj) {
 		return getFieldValue(getField(field, obj.getClass()), obj);
 	}
+
+    public static void setStaticFieldValue(Object value, String field, Class clazz) {
+	    try {
+		    setFieldValue(value, clazz.getDeclaredField(field), null);
+	    } catch (NoSuchFieldException e) {
+		    e.printStackTrace();
+	    }
+    }
 
     public static void setFieldValue(Object value, String field, Object obj) {
         try {
@@ -364,7 +376,11 @@ public class ReflectUtil {
         }
     }
 
-    private static class _Runnable implements Runnable {
+	public static void invokeStatic(String methodName, Class<?> clazz) {
+		invoke(getMethod(methodName, clazz), null, null);
+	}
+
+	private static class _Runnable implements Runnable {
 		private final Class clazz;
 
 		private String method;

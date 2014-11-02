@@ -514,12 +514,8 @@ public class Cols {
 
 	public static <T, A> Map<A, Collection<T>> group(Collection<T> col,
 			F1<T, A> groupF) {
-		F1<A, Collection<T>> cacheCreation = new F1<A, Collection<T>>() {
-			public Collection<T> e(Object obj) {
-				return new ArrayList<T>();
-			}
-        };
-		Cache<A, Collection<T>> indiceCache = new Cache<A, Collection<T>>(cacheCreation);
+		F1<A, Collection<T>> cacheCreation = obj -> new ArrayList<T>();
+		Cache<A, Collection<T>> indiceCache = new Cache<>(cacheCreation);
 		
 		// Index
 		for (T object : col) {

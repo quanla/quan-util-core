@@ -1,11 +1,5 @@
 package qj.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import qj.util.funct.F1;
 import qj.util.funct.Fs;
 import qj.util.funct.P1;
@@ -13,6 +7,12 @@ import qj.util.funct.P2;
 import qj.util.math.Range;
 import qj.util.structure.Structure;
 import qj.util.structure.StructureBuilder;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RegexUtil extends RegexUtil4 {
     public static F1<Object,Pattern> compileF = new F1<Object, Pattern>() {
@@ -23,54 +23,54 @@ public class RegexUtil extends RegexUtil4 {
 
     public static F1<Object,Pattern> patternCache = Fs.<Object,Pattern>cache(compileF);
 
-    @SuppressWarnings("unchecked")
-	public static String replaceAll(final String str, F1<String, String> forNonMatch, Object... replaces) {
-        List<Object> patterns = Cols.filter(replaces, Fs.<Object, Boolean>f1(MathUtil.onoff()));
-        List<Object> reps = Cols.filter(replaces, Fs.<Object, Boolean>f1(Fs.not(MathUtil.onoff())));
-        List<Matcher> matchers = Cols.yield(patterns, Fs.chain(compileF, new F1<Pattern, Matcher>() {public Matcher e(Pattern obj) {
-            return obj.matcher(str);  //To change body of implemented methods use File | Settings | File Templates.
-        }}));
-
-        StringBuffer sb = new StringBuffer();
-        int index = 0;
-        while (true) {
-            int minIndex = Integer.MAX_VALUE;
-            Matcher minMatcher = null;
-            int matcherIndex = -1;
-
-            for (int i = 0, matchersSize = matchers.size(); i < matchersSize; i++) {
-                Matcher matcher = matchers.get(i);
-                if (matcher.find(index)) {
-                    int pos = matcher.start();
-                    if (pos < minIndex) {
-                        minIndex = pos;
-                        minMatcher = matcher;
-                        matcherIndex = i;
-
-                        if (minIndex == 0) {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (minMatcher == null) {
-                break;
-            }
-
-            Object rep = reps.get(matcherIndex);
-            sb.append(forNonMatch.e(str.substring(index, minMatcher.start())));
-            if (rep instanceof String) {
-                sb.append(rep.toString());
-            } else { // if (rep instanceof F1)
-                sb.append(((F1<String, String>) rep).e(minMatcher.group()));
-            }
-            index = minMatcher.end();
-        }
-
-        sb.append(forNonMatch.e(str.substring(index)));
-        return sb.toString();
-    }
+//    @SuppressWarnings("unchecked")
+//	public static String replaceAll(final String str, F1<String, String> forNonMatch, Object... replaces) {
+//        List<Object> patterns = Cols.filter(replaces, Fs.<Object, Boolean>f1(MathUtil.onoff()));
+//        List<Object> reps = Cols.filter(replaces, Fs.<Object, Boolean>f1(Fs.not(MathUtil.onoff())));
+//        List<Matcher> matchers = Cols.yield(patterns, Fs.chain(compileF, new F1<Pattern, Matcher>() {public Matcher e(Pattern obj) {
+//            return obj.matcher(str);  //To change body of implemented methods use File | Settings | File Templates.
+//        }}));
+//
+//        StringBuffer sb = new StringBuffer();
+//        int index = 0;
+//        while (true) {
+//            int minIndex = Integer.MAX_VALUE;
+//            Matcher minMatcher = null;
+//            int matcherIndex = -1;
+//
+//            for (int i = 0, matchersSize = matchers.size(); i < matchersSize; i++) {
+//                Matcher matcher = matchers.get(i);
+//                if (matcher.find(index)) {
+//                    int pos = matcher.start();
+//                    if (pos < minIndex) {
+//                        minIndex = pos;
+//                        minMatcher = matcher;
+//                        matcherIndex = i;
+//
+//                        if (minIndex == 0) {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (minMatcher == null) {
+//                break;
+//            }
+//
+//            Object rep = reps.get(matcherIndex);
+//            sb.append(forNonMatch.e(str.substring(index, minMatcher.start())));
+//            if (rep instanceof String) {
+//                sb.append(rep.toString());
+//            } else { // if (rep instanceof F1)
+//                sb.append(((F1<String, String>) rep).e(minMatcher.group()));
+//            }
+//            index = minMatcher.end();
+//        }
+//
+//        sb.append(forNonMatch.e(str.substring(index)));
+//        return sb.toString();
+//    }
     @SuppressWarnings("unchecked")
 	public static String replaceAll2(String str, Object... replaces) {
         List<Object> patterns = Cols.filter(replaces, Fs.<Object, Boolean>f1(MathUtil.onoff()));
@@ -219,11 +219,7 @@ public class RegexUtil extends RegexUtil4 {
 		ArrayList<StringChange> changes = new ArrayList<StringChange>();
 		if (matcher.find(from)) {
 			do {
-				Matcher m = ptn.matcher(matcher.group(0));
-				m.matches();
-				StringBuffer sb = new StringBuffer();
-				m.appendReplacement(sb, f1.e(m));
-				changes.add(StringChange.replace(matcher.start(), matcher.end(), sb.toString()));
+				changes.add(StringChange.replace(matcher.start(), matcher.end(), f1.e(matcher)));
 			} while (matcher.find() && (to==-1 || matcher.start() < to));
 		}
 		return changes;

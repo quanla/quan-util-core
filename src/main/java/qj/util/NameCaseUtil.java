@@ -7,7 +7,7 @@ import qj.util.funct.F1;
 public class NameCaseUtil {
 	public static String camelToHyphen(String name) {
 		return RegexUtil.replaceAll(name, "[A-Z]", new F1<Matcher, String>() {public String e(Matcher m) {
-			return "_" + m.group().toLowerCase();
+			return (m.start() == 0 ? "" : "_") + m.group().toLowerCase();
 		}});
 	}
 	

@@ -13,10 +13,10 @@ import java.util.LinkedList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-public class CompositeClassLoader extends AggressiveClassLoader {
+public class DynamicClassLoader extends AggressiveClassLoader {
 	LinkedList<F1<String, byte[]>> loaders = new LinkedList<>();
 
-	public CompositeClassLoader(String... paths) {
+	public DynamicClassLoader(String... paths) {
 		for (String path : paths) {
 			File file = new File(path);
 			
@@ -29,7 +29,7 @@ public class CompositeClassLoader extends AggressiveClassLoader {
 	}
 
 	@SuppressWarnings("UnusedDeclaration")
-	public CompositeClassLoader(Collection<File> paths) {
+	public DynamicClassLoader(Collection<File> paths) {
 		for (File file : paths) {
 			F1<String, byte[]> loader = loader(file);
 			if (loader == null) {

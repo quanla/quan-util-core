@@ -12,8 +12,6 @@ import java.util.Map.Entry;
 
 
 import qj.tool.http.HttpUtil4;
-import qj.util.HttpUtil.HttpMessage;
-import qj.util.funct.Fs;
 import qj.util.funct.P1;
 import qj.util.funct.P2;
 
@@ -49,7 +47,11 @@ public class HttpUtil extends HttpUtil4 {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	public static String getBoundary(String contentType) {
+		return contentType.substring("multipart/form-data; boundary=".length());
+	}
+
 	public static class EOFException extends RuntimeException {
 		
 	}
@@ -402,14 +404,16 @@ public class HttpUtil extends HttpUtil4 {
 
 	public static HashMap<String, byte[]> getMultipart(String boundary, InputStream in) {
 		final HashMap<String, byte[]> ret = new HashMap<String, byte[]>();
-		serveMultiPart(boundary, in, new P2<String, byte[]>() {public void e(String name, byte[] bytes) {
-			ret.put(name, bytes);
-		}});
+		serveMultipart(boundary, in, new P2<String, byte[]>() {
+			public void e(String name, byte[] bytes) {
+				ret.put(name, bytes);
+			}
+		});
 		return ret;
 	}
 
-	private static void serveMultiPart(String boundary, InputStream in,
-			P2<String, byte[]> p2) {
+	public static void serveMultipart(String boundary, InputStream in,
+	                                  P2<String, byte[]> p2) {
 		IOUtil.skip(in, boundary.length() + 4);
 		while (true) {
 			
@@ -419,11 +423,12 @@ public class HttpUtil extends HttpUtil4 {
 				return;
 			}
 			String contentDisposition = header.getHeader("Content-Disposition");
-			String name = RegexUtil.getString("name=\"(.+?)\"(?:$|;)", 1, contentDisposition);
+//			String name = RegexUtil.getString("name=\"(.+?)\"(?:$|;)", 1, contentDisposition);
+			String filename = RegexUtil.getString("filename=\"(.+?)\"(?:$|;)", 1, contentDisposition);
 			
 			String endBoundary = "\r\n--" + boundary + "\r\n";
 			byte[] bytes = IOUtil.readUntil(in, endBoundary, "\r\n--" + boundary + "--");
-			p2.e(name,Arrays.copyOf(bytes, bytes.length - endBoundary.length()));
+			p2.e(filename,Arrays.copyOf(bytes, bytes.length - endBoundary.length()));
 		}
 	}
 
@@ -432,10 +437,12 @@ public class HttpUtil extends HttpUtil4 {
 			public void serve(String contentType, InputStream in) {
 				String boundary = RegexUtil.getString("boundary=(.+?)(?:$|;)", 1, contentType);
 				
-				serveMultiPart(boundary, in, new P2<String,byte[]>() {public void e(String name, byte[] b) {
-					P1<byte[]> handler = getHandler(name, params);
-					handler.e(b);
-				}});
+				serveMultipart(boundary, in, new P2<String, byte[]>() {
+					public void e(String name, byte[] b) {
+						P1<byte[]> handler = getHandler(name, params);
+						handler.e(b);
+					}
+				});
 			}
 
 			private P1<byte[]> getHandler(String name, Object[][] params) {

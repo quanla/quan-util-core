@@ -2,7 +2,7 @@ package qj.util;
 
 import qj.tool.file.FileSearch;
 import qj.util.funct.F1;
-import qj.util.lang.CompositeClassLoader;
+import qj.util.lang.DynamicClassLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -166,7 +166,7 @@ public class LangUtil extends LangUtil4 {
 		if (!file.exists()) {
 			return null;
 		} else {
-			return new CompositeClassLoader(path);
+			return new DynamicClassLoader(path);
 		}
 	}
 
