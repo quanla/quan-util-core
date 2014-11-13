@@ -544,6 +544,15 @@ public class ReflectUtil {
 		}
 		return ret;
 	}
+	
+	
+	public static Map toMap(Object o, Object... objects) {
+		Map map = toMap(o);
+		Map map1 = Cols.toMap(objects);
+		Cols.copy(map1, map);
+		return map;
+	}
+
 
 	@SuppressWarnings("rawtypes")
 	public static <A> A toFunction(final Method method, final Object obj) {

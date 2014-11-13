@@ -1,9 +1,6 @@
 package qj.util.template;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -46,13 +43,16 @@ public class Template {
 		return ret;
 	}
 	public static Template compileSimple(Class<?> clazz, String resourceName) {
-		Template ret = new Template();
-		
 		String allContent = IOUtil.toString(clazz.getResourceAsStream(resourceName), "UTF-8");
+
+		return compileSimple(allContent);
+	}
+
+	public static Template compileSimple(String allContent) {
+		Template ret = new Template();
 		ret.allParts.put(null, compilePart(allContent));
 		return ret;
 	}
-	
 
 
 	static P2<Map,Writer> compilePart(final String content) {
@@ -152,6 +152,12 @@ public class Template {
 			Writer writer) {
 		P2<Map, Writer> p2 = allParts.get(null);
 		p2.e(vars, writer);
+	}
+
+	public String toString(Map<String, Object> vars) {
+		StringWriter writer = new StringWriter();
+		write(vars, writer);
+		return writer.toString();
 	}
 
 }

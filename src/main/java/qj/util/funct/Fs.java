@@ -1116,6 +1116,15 @@ public class Fs extends FsGenerated {
 			}
 		}
 	}
+	public static <A> void invokeAll_force(final Collection<P1<A>> col, A a) {
+		for (P1<A> p1 : col) {
+			try {
+				p1.e(a);
+			} catch (Exception e) {
+				System.err.print(e.getMessage());
+			}
+		}
+	}
 	public static <A> void invokeAll(final Collection<P1<A>> col, A a) {
 		for (P1<A> p1 : col) {
 			p1.e(a);

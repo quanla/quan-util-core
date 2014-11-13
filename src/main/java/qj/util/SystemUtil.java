@@ -195,16 +195,22 @@ public class SystemUtil {
 	}
 
 	public static void onReturn(final P0 p0) {
-		ThreadUtil.run(new P0() {public void e() {
-			while (true) {
-				try {
-					readLine();
-				} catch (Exception e1) {
-					return;
+		onReturn(Fs.<String>p1(p0));
+	}
+
+	public static void onReturn(final P1<String> p1) {
+		ThreadUtil.runStrong(new P0() {
+			public void e() {
+				while (true) {
+					try {
+						String readLine = readLine();
+						p1.e(readLine);
+					} catch (Exception e1) {
+						return;
+					}
 				}
-				p0.e();
 			}
-		}});
+		});
 	}
 	public static void onReturn1(final P0 p0) {
 		onReturn1(Fs.<String>p1(p0));

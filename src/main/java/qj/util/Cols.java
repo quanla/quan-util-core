@@ -832,6 +832,10 @@ public class Cols {
     	ret.putAll(map2);
 		return ret;
     }
+    public static <A,B> Map<A,B> copy(Map<A,B> from, Map<A,B> to) {
+    	to.putAll(from);
+		return to;
+    }
 
     public static <A> Iterable<A> iterable(
             final Enumeration<A> enumeration) {
