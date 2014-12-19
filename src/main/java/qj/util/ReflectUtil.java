@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import qj.util.funct.F0;
 import qj.util.funct.F1;
@@ -104,6 +105,33 @@ public class ReflectUtil {
 			}
 		} else {
 			return null;
+		}
+	}
+	
+	public static Method findMethod(Class clazz, F1<Method,Boolean> f1) {
+		AtomicReference<Method> m = new AtomicReference<>();
+		eachMethod(clazz, (Method obj) -> {
+			if (f1.e(obj)) {
+				m.set(obj);
+				return true;
+			}
+			return false;
+		});
+		return m.get();
+	}
+	
+	public static void eachMethod(Class clazz, F1<Method,Boolean> f1) {
+		
+		for (Method method : clazz.getMethods()) {
+			if (f1.e(method)) {
+				return;
+			}
+		}
+		if (!clazz.equals(Object.class)) {
+			Class superclass = clazz.getSuperclass();
+			if (superclass != null) {
+				eachMethod(superclass, f1);
+			}
 		}
 	}
     

@@ -113,7 +113,7 @@ public class ProcessUtil {
 	public static Process exec(String cmd, String[] envp, String dir) {
 		try {
 			cmd = shell(cmd, dir);
-//			System.out.println(cmd);
+			System.out.println(cmd);
 			
 			Process process =
 					Runtime.getRuntime().exec(
@@ -237,14 +237,26 @@ public class ProcessUtil {
 	
 	public static String collectOutput(Process process) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		collectOutput(process, out);
+		String output = out.toString();
+		return output;
+	}
+
+	public static void collectOutput(Process process, OutputStream out) {
 		IOUtil.asynConnect(process.getInputStream(), out);
 		IOUtil.asynConnect(process.getErrorStream(), out);
 		final Object lock = new Object();
 		ProcessUtil.onExit(process, ThreadUtil.notifyAllF(lock));
 		ThreadUtil.wait(lock);
-		String output = out.toString();
-		return output;
 	}
+	public static void collectNormalOutput(Process process, OutputStream out) {
+		IOUtil.asynConnect(process.getInputStream(), out);
+//		IOUtil.asynConnect(process.getErrorStream(), out);
+		final Object lock = new Object();
+		ProcessUtil.onExit(process, ThreadUtil.notifyAllF(lock));
+		ThreadUtil.wait(lock);
+	}
+
 	public static P0 showConsole(final Process process, Window window) {
 		return showConsole("Console", process, window);
 	}
