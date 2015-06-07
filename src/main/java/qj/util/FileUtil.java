@@ -1271,18 +1271,33 @@ public class FileUtil {
      * @param file
      */
 	public static void delete(File file) {
-		if (!file.exists()) {
-			return;
+		delete(file, null);
+	}
+    /**
+     * Delete file or folder
+     * @param f
+     */
+	public static boolean delete(File f, F1<File,Boolean> filter) {
+		if (!f.exists()) {
+			return true;
 		}
 		
-		if (file.isFile()) {
-			file.delete();
-			return;
+		if (filter == null || filter.e(f)) {
+			if (f.isFile()) {
+				f.delete();
+				return true;
+			} else {
+				boolean all = deleteChilds(f, filter);
+				if (all) {
+					f.delete();
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} else {
+			return false;
 		}
-		
-		deleteChilds(file);
-		
-		file.delete();
 	}
 
 	/**
@@ -1293,23 +1308,25 @@ public class FileUtil {
 		deleteChilds(new File(dir));
 	}
 
-	public static void deleteChilds(String dir, F1<File,Boolean> filter) {
-		deleteChilds(new File(dir), filter);
+	public static boolean deleteChilds(String dir, F1<File,Boolean> filter) {
+		return deleteChilds(new File(dir), filter);
 	}
 
 	public static void deleteChilds(File dir) {
 		deleteChilds(dir, null);
 	}
-	public static void deleteChilds(File dir, F1<File,Boolean> filter) {
+	public static boolean deleteChilds(File dir, F1<File,Boolean> filter) {
 		File[] subFiles = dir.listFiles();
 		
+		boolean all = true;
 		if (subFiles != null) {
 			for (File f : subFiles) {
-				if (filter == null || filter.e(f)) {
-					delete(f);
+				if (!delete(f, filter)) {
+					all = false;
 				}
 			}
 		}
+		return all;
 	}
 
 	public static byte[] readFileToBytes(String filePath) {

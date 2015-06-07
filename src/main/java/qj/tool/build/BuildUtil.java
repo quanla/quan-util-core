@@ -1,9 +1,6 @@
 package qj.tool.build;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,17 +10,13 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import qj.util.Cols;
-import qj.util.FileUtil;
-import qj.util.ObjectUtil;
-import qj.util.SystemUtil;
-import qj.util.ZipUtil;
+import qj.util.*;
 import qj.util.funct.F1;
 import qj.util.funct.Fs;
 import qj.util.funct.P1;
 import qj.util.funct.P2;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "UnusedDeclaration"})
 public class BuildUtil {
     public static final String INCLUDE_FILES_KEY = "includeFiles";
     public static final String JAVAW = "javaw";
@@ -54,7 +47,9 @@ public class BuildUtil {
     
     public static void buildClassesJar() {
     	try {
-			writeClassDirs(FileUtil.fileOutputStream("target/classes.jar", false), SystemUtil.classPaths1());
+		    FileOutputStream out = FileUtil.fileOutputStream("target/classes.jar", false);
+		    out.write(writeClassDirs(SystemUtil.classPaths1()));
+		    IOUtil.close(out);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -178,6 +173,14 @@ public class BuildUtil {
 	private static void writeRunSh(String mainClass,
 			Map<String, Object> config, final ZipOutputStream zipFile,
 			final ArrayList<String> putPaths) throws IOException {
+		
+		Collection<String> jvmArgs = (Collection<String>) config.get(JVMARGS);
+		Collection<String> appArgs = (Collection<String>) config.get(ARGS);
+
+		writeRunSh(mainClass, zipFile, putPaths, jvmArgs, appArgs);
+	}
+
+	public static void writeRunSh(String mainClass, ZipOutputStream zipFile, ArrayList<String> putPaths, Collection<String> jvmArgs, Collection<String> appArgs) throws IOException {
 		zipFile.putNextEntry(new ZipEntry("run.sh"));
 		OutputStreamWriter writer = new OutputStreamWriter(zipFile);
 		writer.write(
@@ -185,10 +188,10 @@ public class BuildUtil {
 				);
 		writer.write(
 		        "java " +
-		        Cols.join((Collection<Object>) config.get(JVMARGS), " ") + " " +
+		        Cols.join(jvmArgs, " ") + " " +
 		        "-cp \"" + Cols.join(putPaths, ":") + "\" " +
 		        mainClass + " " +
-		        Cols.join((Collection<Object>) config.get(ARGS), " ")
+		        Cols.join(appArgs, " ")
 		);
 		writer.flush();
 		zipFile.closeEntry();
@@ -197,41 +200,57 @@ public class BuildUtil {
 	private static void writeStartBat(String mainClass,
 			Map<String, Object> config, final ZipOutputStream zipFile,
 			final ArrayList<String> putPaths) throws IOException {
+		
+		Collection<String> jvmArgs = (Collection<String>) config.get(JVMARGS);
+		Collection<String> appArgs = (Collection<String>) config.get(ARGS);
+
+		writeStartBat(mainClass, zipFile, putPaths, jvmArgs, appArgs);
+	}
+
+	public static void writeStartBat(String mainClass, ZipOutputStream zipFile, ArrayList<String> putPaths, Collection<String> jvmArgs, Collection<String> appArgs) throws IOException {
 		zipFile.putNextEntry(new ZipEntry("start.bat"));
 		OutputStreamWriter writer = new OutputStreamWriter(zipFile);
 		writer.write(
 		        "@echo off\n" +
 		        "set PATH=%PATH%;C:\\Program Files (x86)\\Java\\jre6\\bin;C:\\Program Files (x86)\\Java\\jre7\\bin;C:\\Program Files\\Java\\jre7\\bin;C:\\Program Files\\Java\\jre6\\bin;C:\\Program Files\\Java\\jre1.6.0\\bin\n" +
 		        "start javaw " +
-		        Cols.join((Collection<Object>) config.get(JVMARGS), " ") + " " +
+		        Cols.join(jvmArgs, " ") + " " +
 		        "-cp \"" + Cols.join(putPaths, ";") + "\" " +
 		        mainClass + " " +
-		        Cols.join((Collection<Object>) config.get(ARGS), " ") +
+		        Cols.join(appArgs, " ") +
 		        " %*"
 		);
 		writer.flush();
 		zipFile.closeEntry();
 	}
-	
+
 	private static void writeRunBat(String mainClass,
 			Map<String, Object> config, final ZipOutputStream zipFile,
 			final ArrayList<String> putPaths) throws IOException {
+		Collection<String> jvmArgs = (Collection<String>) config.get(JVMARGS);
+		Collection<String> appArgs = (Collection<String>) config.get(ARGS);
+
+		writeRunBat(mainClass, zipFile, putPaths, jvmArgs, appArgs);
+	}
+
+	public static void writeRunBat(String mainClass, ZipOutputStream zipFile, ArrayList<String> putPaths, Collection<String> jvmArgs, Collection<String> appArgs) throws IOException {
 		zipFile.putNextEntry(new ZipEntry("run.bat"));
 		OutputStreamWriter writer = new OutputStreamWriter(zipFile);
 		writer.write(
 		        "@echo off\n" +
 		        "set PATH=%PATH%;C:\\Program Files (x86)\\Java\\jre6\\bin;C:\\Program Files (x86)\\Java\\jre7\\bin;C:\\Program Files\\Java\\jre7\\bin;C:\\Program Files\\Java\\jre6\\bin;C:\\Program Files\\Java\\jre1.6.0\\bin\n" +
 		        "java " +
-		        Cols.join((Collection<Object>) config.get(JVMARGS), " ") + " " +
+		        Cols.join(jvmArgs, " ") + " " +
 		        "-cp \"" + Cols.join(putPaths, ";") + "\" " +
 		        mainClass + " " +
-		        Cols.join((Collection<Object>) config.get(ARGS), " ") +
+		        Cols.join(appArgs, " ") +
 		        " %*"
 		);
 		writer.flush();
 		zipFile.closeEntry();
 	}
-    public static void writeSrcZipFile(List<File> includeFiles, OutputStream out) {
+
+	public static void writeSrcZipFile(List<File> includeFiles, OutputStream out) {
         try {
 
             final ZipOutputStream zipFile = new ZipOutputStream(out);
@@ -252,7 +271,7 @@ public class BuildUtil {
     private static ArrayList<String> wrapperPaths(
             Collection<String> paths,
             ZipOutputStream zipFile) {
-        final ArrayList<String> putPaths = new ArrayList<String>();
+        final ArrayList<String> putPaths = new ArrayList<>();
         P2<File, String> zipWrite = ZipUtil.zipWrite(zipFile);
         for (final String path : paths) {
             File pathFile = new File(path);
@@ -270,9 +289,9 @@ public class BuildUtil {
      * Copy classpaths
      * @param excludes 
      */
-    private static ArrayList<String> copyPaths(
-            Collection<String> paths,
-           final ZipOutputStream zipFile, F1<File, Boolean> excludes) throws IOException {
+    public static ArrayList<String> copyPaths(
+		    Collection<String> paths,
+		    final ZipOutputStream zipFile, F1<File, Boolean> excludes) throws IOException {
         final ArrayList<String> putPaths = new ArrayList<String>();
         P2<File, String> zipWrite = ZipUtil.zipWrite(zipFile);
 
@@ -296,30 +315,31 @@ public class BuildUtil {
         putPaths.add(classesJarPath);
         zipFile.putNextEntry(new ZipEntry(classesJarPath));
         
-        writeClassDirs(zipFile, paths);
+        zipFile.write(writeClassDirs(paths));
 
         zipFile.closeEntry();
         return putPaths;
     }
 
-	private static void writeClassDirs(final OutputStream out,
-			Collection<String> paths) throws IOException {
-		final JarOutputStream classesZipFile = new JarOutputStream(out);
+	public static byte[] writeClassDirs(Collection<String> paths) throws IOException {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		final JarOutputStream classesZipFile = new JarOutputStream(bout);
 
-        P2<File, String> classesJarWriteF = ZipUtil.zipWrite(classesZipFile);
+		P2<File, String> classesJarWriteF = ZipUtil.zipWrite(classesZipFile);
 
-        // If a classpath is dir, zip it and put to classes.jar
-        for (final String path : paths) {
-            File dir = new File(path);
-            if (dir.isDirectory()) {
-                FileUtil.eachFile(dir, classesJarWriteF, FileUtil.svn);
-            }
-        }
-        classesZipFile.flush();
-        classesZipFile.finish();
+		// If a classpath is dir, zip it and put to classes.jar
+		for (final String path : paths) {
+		    File dir = new File(path);
+		    if (dir.isDirectory()) {
+		        FileUtil.eachFile(dir, classesJarWriteF, FileUtil.svn);
+		    }
+		}
+		classesZipFile.flush();
+		classesZipFile.finish();
+		return bout.toByteArray();
 	}
 
-    public static List<File> includeFiles(String dir, final List<String> includes) {
+	public static List<File> includeFiles(String dir, final List<String> includes) {
         return includeFiles(dir, new F1<File, Boolean>() {
             public Boolean e(File obj) {
                 String fileName = obj.getName();

@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-  <parent>
-    <artifactId>quan-java</artifactId>
-    <groupId>qj</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>qj.util</groupId>
   <artifactId>quan-util-core</artifactId>
   <version>1.0-SNAPSHOT</version>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

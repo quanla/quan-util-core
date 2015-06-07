@@ -390,7 +390,8 @@ public class ReflectUtil {
 
     public static void setFieldValue(Object value, String field, Object obj) {
         try {
-            setFieldValue(value, obj.getClass().getDeclaredField(field), obj);
+	        Field declaredField = obj.getClass().getDeclaredField(field);
+	        setFieldValue(value, declaredField, obj);
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }

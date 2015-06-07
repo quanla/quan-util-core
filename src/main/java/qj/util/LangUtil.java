@@ -2,6 +2,7 @@ package qj.util;
 
 import qj.tool.file.FileSearch;
 import qj.util.funct.F1;
+import qj.util.funct.P1;
 import qj.util.lang.DynamicClassLoader;
 
 import java.io.File;
@@ -38,18 +39,26 @@ public class LangUtil extends LangUtil4 {
         return ret;
     }
 
-	public static ArrayList<String> findClasses(String pkg) {
+	public static void eachClass(String pkg, ClassLoader cl, P1<Class> f) {
 		String pkgRootPath = pkg.replaceAll("\\.", "/");
-		ArrayList<String> list = new ArrayList<>();
 		String[] classpaths = System.getProperty("java.class.path").split(";");
 		for (int i = 0; i < classpaths.length; i++) {
 			File file = new File(classpaths[i]);
 			List<String> paths = getPaths(file, pkgRootPath);
-			
-			if (paths != null) 
-				list.addAll( paths );
+
+			if (paths==null) {
+				continue;
+			}
+			for (String path : paths) {
+				try {
+					Class<?> clazz = cl.loadClass(path);
+					f.e(clazz);
+
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		return list;
 	}
 
 	private static final Pattern PTN = Pattern.compile("\\$\\d");
@@ -92,6 +101,7 @@ public class LangUtil extends LangUtil4 {
 						.replaceAll("\\.class$", "")
 						.replaceAll("/", "."));
 				}
+				zipFile.close();
 				return list;
 			} catch (IOException e) {
 //				e.printStackTrace();

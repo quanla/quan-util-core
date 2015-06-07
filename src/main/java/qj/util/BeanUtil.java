@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 public class BeanUtil extends BeanUtil4 {
 	/**
@@ -84,6 +85,33 @@ public class BeanUtil extends BeanUtil4 {
 			return annotation;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		}
+	}
+	
+	
+	public static <A> A get(String fieldNames, Object obj) {
+		if (obj == null) {
+			return null;
+		}
+		
+		Object o = obj;
+		for (String fieldName : fieldNames.split("\\.")) {
+			Object o1 = get1(fieldName, o);
+			if (o1 == null) {
+				throw new NullPointerException("Can not find field " + fieldName + " from object " + o);
+			}
+			o = o1;
+		}
+		
+		return (A) o;
+	}
+
+	private static <A> A get1(String fieldName, Object o) {
+		if (o instanceof Map) {
+			return (A) ((Map) o).get(fieldName);
+		} else {
+			Field field = ReflectUtil.getField(fieldName, o.getClass());
+			return ReflectUtil.getFieldValue(field, o);
 		}
 	}
 }
