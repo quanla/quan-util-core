@@ -51,7 +51,7 @@ public class LangUtil extends LangUtil4 {
 			}
 			for (String path : paths) {
 				try {
-					Class<?> clazz = cl.loadClass(path);
+					Class<?> clazz = (cl == null ? LangUtil.class.getClassLoader() : cl).loadClass(path);
 					f.e(clazz);
 
 				} catch (ClassNotFoundException e) {
