@@ -11,6 +11,14 @@ public class DesktopUtil4 {
 	public static Point getMousePos() {
 	    return MouseInfo.getPointerInfo().getLocation();
 	}
+
+	public static void mouseMoveRel(int x, int y) {
+		Point current = MouseInfo.getPointerInfo().getLocation();
+		robot.mouseMove(current.x + x, current.y + y);
+	}
+	public static void mouseMove(int x, int y) {
+		robot.mouseMove(x, y);
+	}
 	
 	public static void doubleClick(Point clickPoint) {
 		Robot robot;
@@ -54,22 +62,22 @@ public class DesktopUtil4 {
 
 	public static void click(Point clickPoint) {
 		Point loc = MouseInfo.getPointerInfo().getLocation();
-		robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		robot.mouseRelease(InputEvent.BUTTON2_MASK);
+//		robot.mouseRelease(InputEvent.BUTTON1_MASK);
+//		robot.mouseRelease(InputEvent.BUTTON2_MASK);
 		mouseUsedByBot = true;
 		
 		if (clickPoint!=null) {
 			//			ThreadUtil.sleep_force(60);
 			robot.mouseMove(clickPoint.x, clickPoint.y);
 		}
-		ThreadUtil4.sleep(autoDelay * 2);
+//		ThreadUtil4.sleep(autoDelay * 2);
 		robot.mousePress(InputEvent.BUTTON1_MASK);
 		ThreadUtil4.sleep(autoDelay);
 //			robot.mouseMove(clickPoint.x, clickPoint.y);
 		robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		ThreadUtil4.sleep(autoDelay * 2);
-		robot.mouseMove(loc.x, loc.y);
-		ThreadUtil4.sleep(autoDelay * 2);
+//		ThreadUtil4.sleep(autoDelay * 2);
+//		robot.mouseMove(loc.x, loc.y);
+//		ThreadUtil4.sleep(autoDelay * 2);
 		mouseUsedByBot = false;
 	}
 	static int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;

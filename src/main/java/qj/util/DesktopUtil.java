@@ -1,8 +1,6 @@
 package qj.util;
 
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.MouseInfo;
+import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -59,6 +57,11 @@ public class DesktopUtil extends DesktopUtil4 {
 			mouseUsedByBot = false;
 		}
 	}
+
+	public static Color getPixelColor(java.awt.Point p) {
+		return robot.getPixelColor(p.x, p.y);
+	}
+
 	public static void click(Point... clickPoints) {
 		click(Arrays.asList(clickPoints));
 	}
