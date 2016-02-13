@@ -23,8 +23,9 @@ public class TcpGirlFriend {
 	}
 	
 	public static void main(String[] args) throws UnknownHostException, IOException {
+//		String host="localhost";
 //		String host="172.16.166.1";
-		String host = args.length==2 ? args[0] : "ec2-46-137-229-69.ap-southeast-1.compute.amazonaws.com";
+		String host = args.length==2 ? args[0] : "shopquen.com";
 		int port = args.length==2 ? Integer.parseInt(args[1]) : 36293;
 		
 		P2<Socket, P0> reverseAcceptF = new P2<Socket, P0>() {public void e(final Socket cmdSocket, P0 successF) {

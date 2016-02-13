@@ -6,10 +6,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
 
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import qj.tool.build.BuildUtil;
 import qj.util.IOUtil;
 import qj.util.NetUtil;
+import qj.util.RegexUtil;
 import qj.util.ThreadUtil;
 import qj.util.funct.P0;
 import qj.util.funct.P1;
@@ -23,12 +26,16 @@ public class TcpBoyFriend {
 		TcpBoyFriend boyFriend = new TcpBoyFriend();
 		if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
-				String[] split = args[i].split(":");
-				boyFriend.addTarget(split[0], Integer.parseInt(split[1]));
+				Matcher matcher = RegexUtil.matcher("(\\d+)->(\\w+):(\\d+)", args[i]);
+				matcher.matches();
+
+				boyFriend.addTarget(Integer.parseInt(matcher.group(1)), matcher.group(2), Integer.parseInt(matcher.group(3)));
 			}
 		} else {
-			boyFriend.addTarget("localhost", 9443);
-			boyFriend.addTarget("localhost", 80);
+			System.out.println("No target configured. Try:");
+			System.out.println("java qj.util.net.TcpBoyFriend 1010->localhost:80");
+			System.exit(0);
+			return;
 		}
 		boyFriend.run();
 	}
@@ -36,10 +43,12 @@ public class TcpBoyFriend {
 	private static class Target {
 		String host;
 		int port;
+		public int boyfriendPort;
 	}
 	
-	private void addTarget(String host, int port) {
+	private void addTarget(int boyfriendPort, String host, int port) {
 		Target target = new Target();
+		target.boyfriendPort = boyfriendPort;
 		target.host = host;
 		target.port = port;
 		targets.add(target);
@@ -66,7 +75,7 @@ public class TcpBoyFriend {
 		}}));
 		
 		for (final Target target : targets) {
-			ThreadUtil.runStrong(NetUtil.acceptF(target.port, new P1<Socket>() {public void e(final Socket clientSk) {
+			ThreadUtil.runStrong(NetUtil.acceptF(target.boyfriendPort, new P1<Socket>() {public void e(final Socket clientSk) {
 				System.out.println("Got client conn");
 				if (!avaiGFs.isEmpty()) {
 					connect(target.host, target.port, clientSk, avaiGFs.removeLast());

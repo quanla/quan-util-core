@@ -36,6 +36,7 @@ public class BuildUtil {
 
 	public static File buildApp(Class<?> clazz) {
 		File outputFile = buildApp(clazz,clazz.getSimpleName());
+		System.out.println("Built to: " + outputFile.getAbsolutePath());
 		return outputFile;
 	}
 
